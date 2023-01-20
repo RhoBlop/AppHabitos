@@ -46,10 +46,10 @@ async function getDayDetail(request: FastifyRequest) {
 	const parsedDate = dayjs(date).startOf('day');
 	const weekDay = parsedDate.get('day');
 
-	const possibleHabits = prisma.habit.findMany({
+	const possibleHabits = await prisma.habit.findMany({
 		where: {
 			created_at: {
-				lte: date
+				lte: parsedDate.toDate()
 			},
 			HabitWeekDays: {
 				some: {
@@ -58,6 +58,7 @@ async function getDayDetail(request: FastifyRequest) {
 			}
 		}
 	});
+	console.log(possibleHabits);
 
 	const completedDayHabits = await prisma.day.findUnique({
 		where: {

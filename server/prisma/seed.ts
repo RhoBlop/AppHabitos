@@ -2,13 +2,13 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const firstHabitId = 'cld33ru0c00002a6c7q4jkh33';
-const firstHabitCreationDate = new Date('2022-12-31T03:00:00.000');
+const firstHabitCreationDate = new Date('2022-12-31T00:00:00.000');
 
 const secondHabitId = 'cld33sa6z000008mieqq931gw';
-const secondHabitCreationDate = new Date('2023-01-03T03:00:00.000');
+const secondHabitCreationDate = new Date('2023-01-03T00:00:00.000');
 
 const thirdHabitId = 'cld33ssft000308mihu6b9buh';
-const thirdHabitCreationDate = new Date('2023-01-08T03:00:00.000');
+const thirdHabitCreationDate = new Date('2023-01-08T00:00:00.000');
 
 async function main() {
 	await prisma.habit.deleteMany();
