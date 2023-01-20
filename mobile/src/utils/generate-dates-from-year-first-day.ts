@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 
 // return dates from current year beginning until current day
-export function generateDatesFromYearBeginning() {
+export function generateDatesFromYearFirstDay() {
 	const firstDayOfYear = dayjs().startOf('year');
 	const today = new Date();
 
