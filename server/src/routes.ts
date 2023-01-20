@@ -7,6 +7,8 @@ export async function appRoutes(app: FastifyInstance) {
 	app.post('/habit', createHabit);
 
 	app.get('/day', getDayDetail);
+
+	app.patch('/habit/:id/toggle', toggleDayHabit);
 }
 
 async function createHabit(request: FastifyRequest) {
@@ -14,7 +16,6 @@ async function createHabit(request: FastifyRequest) {
 		title: z.string(),
 		weekDays: z.array(z.number().min(0).max(6)).length(7)
 	});
-
 	// creates today with midnight time - yyyy-mm-dd 00:00:00
 	const today = dayjs().startOf('day').toDate();
 
@@ -40,7 +41,6 @@ async function getDayDetail(request: FastifyRequest) {
 	const getDayParams = z.object({
 		date: z.coerce.date()
 	});
-
 	const { date } = getDayParams.parse(request.query);
 
 	const parsedDate = dayjs(date).startOf('day');
@@ -77,4 +77,33 @@ async function getDayDetail(request: FastifyRequest) {
 		possibleHabits,
 		completedHabitsIds
 	};
+}
+
+async function toggleDayHabit(request: FastifyRequest) {
+	const toggleHabitParams = z.object({
+		id: z.string().cuid()
+	});
+	const { id } = toggleHabitParams.parse(request.params);
+
+	const today = dayjs().startOf('day').toDate();
+
+	let day = await prisma.day.findUnique({
+		where: {
+			date: today
+		}
+	});
+
+	// app only creates current day when first habit is toggled
+	if (!day) {
+		day = await prisma.day.create({
+			data: {
+				date: today,
+				DayHabit: {
+					create: {
+						habit_id: id
+					}
+				}
+			}
+		});
+	}
 }

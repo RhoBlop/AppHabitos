@@ -1,5 +1,6 @@
 import fastify from 'fastify';
 import cors from '@fastify/cors';
+import './lib/dayjs';
 import { appRoutes } from './routes';
 
 const app = fastify();
