@@ -8,6 +8,12 @@ module.exports = {
 			},
 			gridTemplateRows: {
 				7: 'repeat(7, minmax(0, 1fr))'
+			},
+			minWidth: {
+				screen: '100vw'
+			},
+			minHeight: {
+				screen: '100vh'
 			}
 		}
 	},

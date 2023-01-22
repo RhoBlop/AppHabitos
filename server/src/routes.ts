@@ -6,18 +6,20 @@ import { prisma } from './lib/prisma';
 export async function appRoutes(app: FastifyInstance) {
 	app.post('/habit', createHabit);
 
+	app.patch('/habit/:id/toggle', toggleDayHabit);
+
 	app.get('/day', getDayDetail);
 
-	app.patch('/habit/:id/toggle', toggleDayHabit);
+	app.get('/summary', getSummary);
 }
 
 async function createHabit(request: FastifyRequest) {
 	const createHabitBody = z.object({
 		title: z.string(),
-		weekDays: z.array(z.number().min(0).max(6)).length(7)
+		weekDays: z.array(z.number().min(0).max(6)).max(7)
 	});
 	// creates today with midnight time - yyyy-mm-dd 00:00:00
-	const today = dayjs().startOf('day').toDate();
+	const today = dayjs.utc().local().startOf('day').toDate();
 
 	const { title, weekDays } = createHabitBody.parse(request.body);
 	const habit = prisma.habit.create({
@@ -43,7 +45,7 @@ async function getDayDetail(request: FastifyRequest) {
 	});
 	const { date } = getDayParams.parse(request.query);
 
-	const parsedDate = dayjs(date).startOf('day');
+	const parsedDate = dayjs.utc(date).local().startOf('day');
 	const weekDay = parsedDate.get('day');
 
 	const possibleHabits = await prisma.habit.findMany({
@@ -58,7 +60,6 @@ async function getDayDetail(request: FastifyRequest) {
 			}
 		}
 	});
-	console.log(possibleHabits);
 
 	const completedDayHabits = await prisma.day.findUnique({
 		where: {
@@ -85,15 +86,16 @@ async function toggleDayHabit(request: FastifyRequest) {
 	});
 	const { id } = toggleHabitParams.parse(request.params);
 
-	const today = dayjs().startOf('day').toDate();
+	const today = dayjs.utc().local().startOf('day').toDate();
 
+	// checks if current day already exists - it only is recorded on db when at
+	// least one habit is toggled for the first time
 	let day = await prisma.day.findUnique({
 		where: {
 			date: today
 		}
 	});
 
-	// app only creates current day when first habit is toggled
 	if (!day) {
 		day = await prisma.day.create({
 			data: {
@@ -106,4 +108,64 @@ async function toggleDayHabit(request: FastifyRequest) {
 			}
 		});
 	}
+
+	const dayHabit = await prisma.dayHabit.findUnique({
+		where: {
+			day_id_habit_id: {
+				day_id: day.id,
+				habit_id: id
+			}
+		}
+	});
+
+	let message;
+	if (dayHabit) {
+		// "uncheks" habit
+		await prisma.dayHabit.delete({
+			where: {
+				id: dayHabit.id
+			}
+		});
+		message = 'toggled off';
+	} else {
+		// "check" habit
+		await prisma.dayHabit.create({
+			data: {
+				day_id: day.id,
+				habit_id: id
+			}
+		});
+		message = 'toggled on';
+	}
+
+	return {
+		message
+	};
+}
+
+async function getSummary(request: FastifyRequest) {
+	const summary = await prisma.$queryRaw`
+        SELECT 
+            D.id, 
+            D.date,
+            (
+                SELECT 
+                    cast(count(*) as float)
+                FROM dayHabit DH
+                WHERE DH.day_id = D.id
+            ) AS completed,
+            (
+                SELECT
+                    cast(count(*) as float)
+                FROM habitWeekDays HWD
+                JOIN habit H ON (H.id = HWD.habit_id)
+                WHERE 
+                    HWD.week_day = cast(strftime('%w', D.date/1000.0, 'unixepoch') as int)
+                    AND H.created_at < D.date
+            )
+        FROM day D
+        ORDER BY D.date
+    `;
+
+	return summary;
 }
