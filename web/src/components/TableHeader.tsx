@@ -1,16 +1,38 @@
+import { Plus, X } from 'phosphor-react';
+import * as Dialog from '@radix-ui/react-dialog';
+import { NewHabitForm } from './NewHabitForm';
+
 import logoImage from '../assets/logo.svg';
-import { Plus } from 'phosphor-react';
 
 export function TableHeader() {
 	return (
 		<div className='w-full max-w-3xl mx-auto flex flex-row justify-between items-center'>
-			<img src={logoImage} alt='' />
-			<button
-				type='button'
-				className='font-semibold flex items-center gap-3 px-6 py-4 border border-violet-500 rounded-lg hover:border-violet-800'>
-				<Plus size={20} className='text-violet-500' />
-				Adicionar Hábito
-			</button>
+			<img src={logoImage} alt='Habits logo' />
+
+			<Dialog.Root>
+				<Dialog.Trigger
+					type='button'
+					className='font-semibold flex items-center gap-3 px-6 py-4 border border-violet-500 rounded-lg hover:border-violet-800'>
+					<Plus size={20} className='text-violet-500' />
+					Adicionar Hábito
+				</Dialog.Trigger>
+
+				<Dialog.Portal>
+					<Dialog.Overlay className='w-screen h-screen bg-black/80 fixed inset-0' />
+
+					<Dialog.Content className='absolute p-10 bg-zinc-900 rounded-2xl w-full max-w-md top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
+						<Dialog.Close className='absolute right-6 top-6 text-zinc-400 hover:text-zinc-200'>
+							<X size={25} aria-label='Fechar' />
+						</Dialog.Close>
+
+						<Dialog.Title className='text-3xl leading-tight font-extrabold'>
+							Criar Hábito
+						</Dialog.Title>
+
+						<NewHabitForm />
+					</Dialog.Content>
+				</Dialog.Portal>
+			</Dialog.Root>
 		</div>
 	);
 }

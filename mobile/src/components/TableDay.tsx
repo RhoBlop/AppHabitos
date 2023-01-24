@@ -1,4 +1,10 @@
-import { Dimensions, TouchableOpacity } from 'react-native';
+import { Dimensions, TouchableOpacity, View, TouchableOpacityProps } from 'react-native';
+import { generateDayColor } from '../utils/generate-day-color';
+
+interface TableDayProps extends TouchableOpacityProps {
+	amount: number | undefined;
+	completed: number | undefined;
+}
 
 const WEEK_DAYS = 7;
 const DAY_MARGIN_BETWEEN = 8; // day margin
@@ -11,12 +17,24 @@ const HORIZONTAL_DISCOUNT = TOTAL_DAYS_MARGIN_BETWEEN + SCREEN_HORIZONTAL_PADDIN
 
 export const DAY_SIZE = (Dimensions.get('screen').width - HORIZONTAL_DISCOUNT) / WEEK_DAYS;
 
-export function TableDay() {
+export function TableDay({ amount = 0, completed = 0, ...rest }: TableDayProps) {
+	const { colorClassName } = generateDayColor(amount, completed);
+
 	return (
 		<TouchableOpacity
-			className='bg-zinc-900 rounded-lg border-2 m-1 border-zinc-800'
+			className={`${colorClassName} rounded-lg border-2 m-1`}
 			style={{ width: DAY_SIZE, height: DAY_SIZE }}
 			activeOpacity={0.7}
+			{...rest}
+		/>
+	);
+}
+
+export function DisabledDay() {
+	return (
+		<View
+			className='bg-zinc-900 rounded-lg border-2 m-1 border-zinc-800 opacity-50'
+			style={{ width: DAY_SIZE, height: DAY_SIZE }}
 		/>
 	);
 }
