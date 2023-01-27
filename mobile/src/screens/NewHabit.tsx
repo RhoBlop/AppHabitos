@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import colors from 'tailwindcss/colors';
@@ -20,6 +20,8 @@ export function NewHabit() {
 	const [checkedWeekDays, setCheckedWeekDays] = useState<number[]>([]);
 
 	function handleToggleWeekDay(weekDayIndex: number) {
+		console.log(checkedWeekDays);
+		console.log('index ' + weekDayIndex);
 		if (checkedWeekDays.includes(weekDayIndex)) {
 			setCheckedWeekDays((prevState) => {
 				return prevState.filter((weekD) => weekD !== weekDayIndex);
@@ -58,7 +60,7 @@ export function NewHabit() {
 					{availableWeekDays.map((day, i) => {
 						return (
 							<Checkbox
-								key={day}
+								key={i}
 								title={day}
 								checked={checkedWeekDays.includes(i)}
 								onPress={() => {

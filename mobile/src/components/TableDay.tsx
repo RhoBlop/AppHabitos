@@ -17,7 +17,7 @@ const HORIZONTAL_DISCOUNT = TOTAL_DAYS_MARGIN_BETWEEN + SCREEN_HORIZONTAL_PADDIN
 
 export const DAY_SIZE = (Dimensions.get('screen').width - HORIZONTAL_DISCOUNT) / WEEK_DAYS;
 
-export function TableDay({ amount = 0, completed = 0, ...rest }: TableDayProps) {
+export function TableDay({ amount = 0, completed = 0, ...rest }) {
 	const { colorClassName } = generateDayColor(amount, completed);
 
 	return (

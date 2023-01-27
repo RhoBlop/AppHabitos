@@ -22,8 +22,6 @@ export function Habit() {
 		loading
 	} = useFetchDay(date);
 
-	console.log('oi');
-
 	const parsedDate = dayjs(date);
 	const fullWeekDay = parsedDate.format('dddd');
 	const dayAndMonth = parsedDate.format('DD/MM');
